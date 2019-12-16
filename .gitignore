@@ -1,6 +1,3 @@
-# Exclude sample project
-example/
-
 # Miscellaneous
 *.class
 *.log
