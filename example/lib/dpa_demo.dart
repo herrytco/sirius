@@ -19,12 +19,18 @@ class _DPADemoViewState extends State<DPADemoView> {
     );
 
     try {
-      _fruitRepository.add(apple);
+      await _fruitRepository.add(apple);
+      // await _fruitRepository.delete({"id": 3});
+      fruits = await _fruitRepository.all();
     } catch (e) {
-      // print("UNABLE TO ADD new Object because of: $e");
+      print("unable to ADD new Object");
     }
 
-    fruits = await _fruitRepository.all();
+    try {
+      fruits = await _fruitRepository.all();
+    } catch (e) {
+      print("unable to delete Object");
+    }
 
     setState(() {});
   }

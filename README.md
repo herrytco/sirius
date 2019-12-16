@@ -100,6 +100,8 @@ fruitRepository.add(apple);
 Fruit fruit = await fruitRepository.one({"id": 3});
 
 List<Fruit> allFruits = await fruitRepository.all();
+
+await fruitRepository.delete({"id": 3});
 ```
 
 Here, the repository gets instantiated once. It is then used to:
@@ -108,3 +110,4 @@ Here, the repository gets instantiated once. It is then used to:
 * add a new Fruit object to the table
 * query all stored Fruit objects
 * get a specific Fruit object from the table
+* delete a specific Fruit object from the table

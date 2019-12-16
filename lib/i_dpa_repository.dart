@@ -11,6 +11,11 @@ abstract class DPARepository<F extends DPAEntity, G extends DPAFactory<F>> {
 
   String _tableName;
 
+  final G _factory;
+  G get entityFactory => _factory;
+
+  F _reference;
+
   ///
   /// builds the CREATE query based on the data gathered from the reference
   /// Object
@@ -47,10 +52,17 @@ abstract class DPARepository<F extends DPAEntity, G extends DPAFactory<F>> {
     return _createQuery;
   }
 
-  final G _factory;
-  G get entityFactory => _factory;
+  ///
+  /// returns true, iff [data] only contains fields that are also a column in
+  /// the DPAEntity
+  ///
+  bool _checkMapFields(Map<String, dynamic> data) {
+    for (String key in data.keys) {
+      if (!_reference.fields.keys.contains(key)) return false;
+    }
 
-  F _reference;
+    return true;
+  }
 
   DPARepository(this._factory) {
     _reference = _factory.entity;
@@ -70,7 +82,15 @@ abstract class DPARepository<F extends DPAEntity, G extends DPAFactory<F>> {
     Map<String, dynamic> data = entity.toMap();
 
     Database db = await DPA.instance.database;
-    await db.insert(_tableName, data);
+    try {
+      await db.insert(_tableName, data);
+    } on DatabaseException catch (e) {
+      if (e.toString().startsWith("DatabaseException(UNIQUE constraint failed"))
+        throw Exception(
+            "It is not possible to add $entity to the table because an element with the same primary key already exists.");
+      else
+        throw e;
+    }
   }
 
   ///
@@ -88,6 +108,10 @@ abstract class DPARepository<F extends DPAEntity, G extends DPAFactory<F>> {
     return data;
   }
 
+  ///
+  /// retrieves one entity from the Database
+  /// all primary-key fields must be present in [pk]
+  ///
   Future<F> one(Map<String, dynamic> pk) async {
     Database db = await DPA.instance.database;
 
@@ -113,5 +137,18 @@ abstract class DPARepository<F extends DPAEntity, G extends DPAFactory<F>> {
           "Error while querying for a single entity of type '${_reference.runtimeType}' Invalid number of results.\nExpected to find 1 result, actually found: ${result.length}");
 
     return _factory.fromMap(result[0]);
+  }
+
+  Future<void> delete(Map<String, dynamic> mask) async {
+    Database db = await DPA.instance.database;
+
+    if (!_checkMapFields(mask))
+      throw Exception("Unrecognized field in delete operation!");
+
+    await db.delete(
+      _tableName,
+      where: _reference.getWhereString(mask),
+      whereArgs: _reference.whereArgs(mask),
+    );
   }
 }
