@@ -122,7 +122,6 @@ abstract class DPARepository<F extends DPAEntity, G extends DPAFactory<F>> {
     List<F> data = [];
 
     for (Map<String, dynamic> row in result) {
-      print(row);
       data.add(_factory.fromMap(row));
     }
 
