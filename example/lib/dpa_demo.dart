@@ -1,3 +1,4 @@
+import 'package:example/add_fruit_dialog.dart';
 import 'package:flutter/material.dart';
 import 'model/fruit_repository.dart';
 import 'model/fruit.dart';
@@ -12,25 +13,7 @@ class _DPADemoViewState extends State<DPADemoView> {
   List<Fruit> fruits = [];
 
   Future<void> _initData() async {
-    Fruit apple = _fruitRepository.entityFactory.construct(
-      3,
-      "Strawberry",
-      "Red, small fruit which has 'Berry' in its name but is really a 'Nut'.",
-    );
-
-    try {
-      await _fruitRepository.add(apple);
-      // await _fruitRepository.delete({"id": 3});
-      fruits = await _fruitRepository.all();
-    } catch (e) {
-      print("unable to ADD new Object");
-    }
-
-    try {
-      fruits = await _fruitRepository.all();
-    } catch (e) {
-      print("unable to delete Object");
-    }
+    fruits = await _fruitRepository.all();
 
     setState(() {});
   }
@@ -41,11 +24,35 @@ class _DPADemoViewState extends State<DPADemoView> {
     _initData();
   }
 
+  ///
+  /// callback to the dialog to add the new defined fruit to the database and 
+  /// update the view
+  /// 
+  void _addFruit(String name, String description, int weight) async {
+    print("Adding Fruit($name, $description, $weight)");
+
+    Fruit fNew = _fruitRepository.entityFactory.construct(name, description, weight: weight);
+    await _fruitRepository.add(fNew);
+
+    fruits = await _fruitRepository.all();
+
+    setState(() {});    
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("DPA Test"),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => AddFruitDialog(_addFruit),
+          );
+        },
       ),
       body: DataTable(
         columns: [
@@ -55,6 +62,10 @@ class _DPADemoViewState extends State<DPADemoView> {
           ),
           DataColumn(label: Text("Name")),
           DataColumn(label: Text("Description")),
+          DataColumn(
+            label: Text("Weight"),
+            numeric: true,
+          ),
         ],
         rows: fruits
             .map(
@@ -62,6 +73,7 @@ class _DPADemoViewState extends State<DPADemoView> {
                 DataCell(Text("${f.id}")),
                 DataCell(Text("${f.name}")),
                 DataCell(Text("${f.description}")),
+                DataCell(Text("${f.weight}")),
               ]),
             )
             .toList(),

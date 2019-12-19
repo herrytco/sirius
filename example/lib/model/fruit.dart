@@ -7,11 +7,14 @@ class Fruit extends DPAEntity {
 
   String description;
 
+  int weight;
+
   @override
   void registerFields() {
-    registerField("id", DataType.Integer, primaryKey: true);
+    registerField("id", DataType.IntegerAuto, primaryKey: true);
     registerField("name", DataType.String);
     registerField("description", DataType.String);
+    registerField("weight", DataType.Integer);
   }
 
   @override
@@ -20,6 +23,7 @@ class Fruit extends DPAEntity {
       "id": id,
       "name": name,
       "description": description,
+      "weight": weight,
     };
   }
 }

@@ -37,17 +37,24 @@ abstract class DPARepository<F extends DPAEntity, G extends DPAFactory<F>> {
         case DataType.String:
           _createQuery += "$fieldName TEXT, ";
           break;
+
+        case DataType.IntegerAuto:
+          _createQuery += "$fieldName INTEGER PRIMARY KEY AUTOINCREMENT, ";
+          break;
       }
     }
 
-    _createQuery += "PRIMARY KEY(";
+    if (!_reference.hasAutoIncrementPrimaryKey) {
+      _createQuery += "PRIMARY KEY(";
 
-    for (String pkColumn in reference.primaryKeyFields)
-      _createQuery += "$pkColumn, ";
+      for (String pkColumn in reference.primaryKeyFields)
+        _createQuery += "$pkColumn, ";
 
-    _createQuery = _createQuery.substring(0, _createQuery.length - 2);
+      _createQuery = _createQuery.substring(0, _createQuery.length - 2);
 
-    _createQuery += "))";
+      _createQuery += "))";
+    } else
+      _createQuery = _createQuery.substring(0, _createQuery.length - 2) + ")";
 
     return _createQuery;
   }
@@ -79,7 +86,18 @@ abstract class DPARepository<F extends DPAEntity, G extends DPAFactory<F>> {
   /// adds the given entity to the matching table
   ///
   Future<void> add(F entity) async {
+    if (!entity.primaryKeyFieldsAreSet(_reference))
+      throw Exception("Not all Primary key fields have been set!");
+
     Map<String, dynamic> data = entity.toMap();
+
+    if (entity.hasAutoIncrementPrimaryKey) {
+      for (String key in entity.fields.keys)
+        if (entity.fields[key] == DataType.IntegerAuto) {
+          data.remove(key);
+          break;
+        }
+    }
 
     Database db = await DPA.instance.database;
     try {
@@ -103,7 +121,10 @@ abstract class DPARepository<F extends DPAEntity, G extends DPAFactory<F>> {
 
     List<F> data = [];
 
-    for (Map<String, dynamic> row in result) data.add(_factory.fromMap(row));
+    for (Map<String, dynamic> row in result) {
+      print(row);
+      data.add(_factory.fromMap(row));
+    }
 
     return data;
   }
@@ -129,7 +150,7 @@ abstract class DPARepository<F extends DPAEntity, G extends DPAFactory<F>> {
     List<Map<String, dynamic>> result = await db.query(
       _tableName,
       where: _reference.whereStringForSingleEntity,
-      whereArgs: _reference.whereArgs(pk),
+      whereArgs: _reference.whereArgs(pk, _reference),
     );
 
     if (result.length != 1)
@@ -139,6 +160,10 @@ abstract class DPARepository<F extends DPAEntity, G extends DPAFactory<F>> {
     return _factory.fromMap(result[0]);
   }
 
+  ///
+  /// deletes ALL entities from the table that matches with the given
+  /// search mask
+  ///
   Future<void> delete(Map<String, dynamic> mask) async {
     Database db = await DPA.instance.database;
 
@@ -147,8 +172,29 @@ abstract class DPARepository<F extends DPAEntity, G extends DPAFactory<F>> {
 
     await db.delete(
       _tableName,
-      where: _reference.getWhereString(mask),
-      whereArgs: _reference.whereArgs(mask),
+      where: _reference.getWhereString(mask, _reference),
+      whereArgs: _reference.whereArgs(mask, _reference),
     );
+  }
+
+  ///
+  /// updates the values of [entity] in the table to match the entity
+  /// of the given parameter.
+  ///
+  Future<void> update(F entity) async {
+    if (!entity.primaryKeyFieldsAreSet(_reference))
+      throw Exception("Not all Primary key fields have been set!");
+
+    Database db = await DPA.instance.database;
+
+    try {
+      await db.update(
+        _tableName,
+        entity.toMap(),
+        where: _reference.whereStringForSingleEntity,
+        whereArgs:
+            entity.whereArgs(entity.toPrimaryKeyFields(_reference), _reference),
+      );
+    } catch (e) {}
   }
 }

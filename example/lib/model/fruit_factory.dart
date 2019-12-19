@@ -6,21 +6,29 @@ class FruitFactory extends DPAFactory<Fruit> {
   Fruit fromMap(Map<String, dynamic> data) {
     if (!(data.containsKey("id") &&
         data.containsKey("name") &&
+        data.containsKey("weight") &&
         data.containsKey("description")))
       throw Exception("not all fields are present in the map");
+    
+    Fruit f = entity;
 
-    return construct(data["id"], data["name"], data["description"]);
+    f.id = data["id"];
+    f.name = data["name"];
+    f.description = data["description"];
+    f.weight = data["weight"];
+
+    return f;
   }
 
   @override
   Fruit get entity => Fruit();
 
-  Fruit construct(int id, String name, String description) {
+  Fruit construct(String name, String description, {int weight}) {
     Fruit f = entity;
 
-    f.id = id;
     f.name = name;
     f.description = description;
+    f.weight = weight;
 
     return f;
   }
