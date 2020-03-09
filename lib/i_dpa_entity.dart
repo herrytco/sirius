@@ -40,11 +40,12 @@ abstract class DPAEntity {
   List<dynamic> whereArgs(Map<String, dynamic> args, DPAEntity reference) {
     List<dynamic> whereArgs = [];
 
-    for (String field in reference.fieldOrder) {
-      if (args.containsKey(field)) {
-        whereArgs.add(args[field]);
+    if (args.keys.isNotEmpty)
+      for (String field in reference.fieldOrder) {
+        if (args.containsKey(field)) {
+          whereArgs.add(args[field]);
+        }
       }
-    }
 
     return whereArgs;
   }
@@ -57,11 +58,12 @@ abstract class DPAEntity {
   String getWhereString(Map<String, dynamic> data, DPAEntity reference) {
     String result = "";
 
-    for (String field in reference.fieldOrder) {
-      if (data.containsKey(field)) {
-        result += "$field = ? AND";
+    if (data.keys.isNotEmpty)
+      for (String field in reference.fieldOrder) {
+        if (data.containsKey(field)) {
+          result += "$field = ? AND";
+        }
       }
-    }
 
     return result.substring(0, result.length - 4).trim();
   }

@@ -10,11 +10,23 @@ abstract class DPARepository<F extends DPAEntity, G extends DPAFactory<F>> {
   String get createQuery => _createQuery;
 
   String _tableName;
+  String get tableName => _tableName;
 
   final G _factory;
   G get entityFactory => _factory;
 
   F _reference;
+
+  DPARepository(this._factory) {
+    _reference = _factory.entity;
+    _tableName = "table_${_reference.runtimeType.toString().toLowerCase()}";
+
+    // get the entity information from the reference
+    _reference.registerFields();
+    _constructCreateQuery(_reference);
+
+    DPA.instance.registerRepository(this);
+  }
 
   ///
   /// builds the CREATE query based on the data gathered from the reference
@@ -69,17 +81,6 @@ abstract class DPARepository<F extends DPAEntity, G extends DPAFactory<F>> {
     }
 
     return true;
-  }
-
-  DPARepository(this._factory) {
-    _reference = _factory.entity;
-    _tableName = "table_${_reference.runtimeType.toString().toLowerCase()}";
-
-    // get the entity information from the reference
-    _reference.registerFields();
-    _constructCreateQuery(_reference);
-
-    DPA.instance.registerRepository(this);
   }
 
   ///
@@ -169,11 +170,14 @@ abstract class DPARepository<F extends DPAEntity, G extends DPAFactory<F>> {
     if (!_checkMapFields(mask))
       throw Exception("Unrecognized field in delete operation!");
 
-    await db.delete(
-      _tableName,
-      where: _reference.getWhereString(mask, _reference),
-      whereArgs: _reference.whereArgs(mask, _reference),
-    );
+    if (mask.keys.isNotEmpty)
+      await db.delete(
+        _tableName,
+        where: _reference.getWhereString(mask, _reference),
+        whereArgs: _reference.whereArgs(mask, _reference),
+      );
+    else
+      await db.delete(_tableName);
   }
 
   ///
