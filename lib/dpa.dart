@@ -53,6 +53,25 @@ class DPA {
 
   List<DPARepository> _registeredRepositories = [];
 
+  ///
+  /// used to retrieve instances of already initiated repositories
+  /// pass the type of the repository as class as argument
+  ///
+  static DPARepository repository(Type type) {
+    return _instance.getInstance(type);
+  }
+
+  ///
+  /// used to retrieve instances of already initiated repositories
+  /// pass the type of the repository as class as argument
+  ///
+  DPARepository getInstance(Type type) {
+    for (DPARepository repo in _registeredRepositories)
+      if (repo.runtimeType == type) return repo;
+
+    throw Exception("No repository found for typ $type");
+  }
+
   Future<void> registerRepository(DPARepository repository) async {
     if (_readyForCRUD)
       throw Exception(

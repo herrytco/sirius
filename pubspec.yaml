@@ -1,6 +1,6 @@
 name: sirius
 description: An abstraction to make the use of SQFLite simpler and more attractive. 
-version: 0.0.2
+version: 0.0.3
 homepage: https://github.com/herrytco/
 
 environment:

@@ -1,3 +1,7 @@
+## [0.0.3] - 10.03.2020
+
+Added accessors to repositories to avoid have the user implement singletons in each repository.
+
 ## [0.0.2] - 10.03.2020
 
 Provided getter for the table name in the repository to build custom queries.

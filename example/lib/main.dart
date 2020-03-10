@@ -2,6 +2,7 @@ import 'package:example/add_fruit_dialog.dart';
 import 'package:example/model/fruit.dart';
 import 'package:example/model/fruit_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:sirius/dpa.dart';
 
 void main() => runApp(MyApp());
 
@@ -11,17 +12,18 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
-  final FruitRepository _fruitRepository = FruitRepository();
   List<Fruit> fruits = [];
 
   Future<void> _initData() async {
-    fruits = await _fruitRepository.all();
+    FruitRepository repo = DPA.repository(FruitRepository);
+    fruits = await repo.all();
 
     setState(() {});
   }
 
   @override
   void initState() {
+    FruitRepository();
     super.initState();
     _initData();
   }
@@ -33,11 +35,13 @@ class MyAppState extends State<MyApp> {
   void _addFruit(String name, String description, int weight) async {
     print("Adding Fruit($name, $description, $weight)");
 
-    Fruit fNew = _fruitRepository.entityFactory
-        .construct(name, description, weight: weight);
-    await _fruitRepository.add(fNew);
+    FruitRepository repo = DPA.repository(FruitRepository);
 
-    fruits = await _fruitRepository.all();
+    Fruit fNew =
+        repo.entityFactory.construct(name, description, weight: weight);
+    await repo.add(fNew);
+
+    fruits = await repo.all();
 
     setState(() {});
   }
@@ -47,8 +51,9 @@ class MyAppState extends State<MyApp> {
   /// method in the repository
   ///
   void _deleteAll() async {
-    await _fruitRepository.delete({});
-    fruits = await _fruitRepository.all();
+    FruitRepository repo = DPA.repository(FruitRepository);
+    await repo.delete({});
+    fruits = await repo.all();
     setState(() {});
   }
 
