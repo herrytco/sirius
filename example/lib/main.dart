@@ -42,49 +42,69 @@ class MyAppState extends State<MyApp> {
     setState(() {});
   }
 
+  ///
+  /// deletes all fruits stored by passing an empty mask to the delete(..)
+  /// method in the repository
+  ///
+  void _deleteAll() async {
+    await _fruitRepository.delete({});
+    fruits = await _fruitRepository.all();
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text("DPA Test"),
-        ),
-        floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add),
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) => AddFruitDialog(_addFruit),
-            );
-          },
-        ),
-        body: DataTable(
-          columns: [
-            DataColumn(
-              label: Text("Id"),
-              numeric: true,
-            ),
-            DataColumn(label: Text("Name")),
-            DataColumn(label: Text("Description")),
-            DataColumn(
-              label: Text("Weight"),
-              numeric: true,
-            ),
-          ],
-          rows: fruits
-              .map(
-                (Fruit f) => DataRow(cells: [
-                  DataCell(Text("${f.id}")),
-                  DataCell(Text("${f.name}")),
-                  DataCell(Text("${f.description}")),
-                  DataCell(Text("${f.weight}")),
-                ]),
-              )
-              .toList(),
+      title: 'DPA Demo Application',
+      home: Builder(
+        builder: (BuildContext context) => Scaffold(
+          appBar: AppBar(
+            title: Text("DPA Test"),
+          ),
+          floatingActionButton: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              FloatingActionButton(
+                child: Icon(Icons.delete),
+                onPressed: _deleteAll,
+              ),
+              SizedBox(width: 8),
+              FloatingActionButton(
+                child: Icon(Icons.add),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) =>
+                        AddFruitDialog(_addFruit),
+                  );
+                },
+              ),
+            ],
+          ),
+          body: DataTable(
+            columns: [
+              DataColumn(
+                label: Text("Id"),
+                numeric: true,
+              ),
+              DataColumn(label: Text("Name")),
+              DataColumn(label: Text("Description")),
+              DataColumn(
+                label: Text("Weight"),
+                numeric: true,
+              ),
+            ],
+            rows: fruits
+                .map(
+                  (Fruit f) => DataRow(cells: [
+                    DataCell(Text("${f.id}")),
+                    DataCell(Text("${f.name}")),
+                    DataCell(Text("${f.description}")),
+                    DataCell(Text("${f.weight}")),
+                  ]),
+                )
+                .toList(),
+          ),
         ),
       ),
     );
