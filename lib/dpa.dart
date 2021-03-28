@@ -27,9 +27,10 @@ class DPA {
 
       if (!dbFile.existsSync()) {
         dbFile.createSync(recursive: true);
-        print("Successfully created database file.");
-      } else
-        print("Database file already exists.");
+        // print("Successfully created database file.");
+      } else {
+        // print("Database file already exists.");
+      }
 
       _database = await openDatabase(dbFile.path);
     }
@@ -37,7 +38,7 @@ class DPA {
     if (!_readyForCRUD) {
       for (DPARepository repo in _registeredRepositories) {
         await _database.execute(repo.createQuery);
-        print(repo.createQuery);
+        // print(repo.createQuery);
       }
 
       _readyForCRUD = true;

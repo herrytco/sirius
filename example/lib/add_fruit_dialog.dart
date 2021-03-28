@@ -77,11 +77,11 @@ class _AddFruitDialogState extends State<AddFruitDialog> {
         ),
       ),
       actions: <Widget>[
-        FlatButton(
+        ElevatedButton(
           child: Text("Abbrechen"),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        FlatButton(
+        ElevatedButton(
           child: Text("Hinzufügen"),
           onPressed: _onSubmit,
         ),

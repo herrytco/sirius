@@ -1,6 +1,6 @@
 name: sirius
 description: An abstraction to make the use of SQFLite simpler and more attractive. 
-version: 0.0.3
+version: 0.0.4
 homepage: https://github.com/herrytco/
 
 environment:
@@ -9,8 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  sqflite: ^1.1.8
-  path_provider: ^1.5.1
+  sqflite: ^2.0.0+3
+  path_provider: ^2.0.1
 
 dev_dependencies:
   flutter_test:

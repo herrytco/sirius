@@ -1,3 +1,7 @@
+## [0.0.4] - 10.03.2021
+
+Updated Dependencies
+
 ## [0.0.3] - 10.03.2020
 
 Added accessors to repositories to avoid have the user implement singletons in each repository.
